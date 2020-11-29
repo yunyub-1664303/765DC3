@@ -3,18 +3,18 @@
     <h1>
       Amazon Categories Tree
     </h1>
-    <Tree/>
+    <BarChart/>
     
   </div>
 </template>
 
 <script>
-import Tree from './components/Tree.vue'
 
+import BarChart from './components/Analytics.vue'
 
 export default {
   name: 'App',
-  components: { Tree }
+  components: { BarChart }
 }
 </script>
 

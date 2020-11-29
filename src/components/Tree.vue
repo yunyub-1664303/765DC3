@@ -1,6 +1,5 @@
 <template>
   <div>
-    <BarChart v-bind:currentRoot="this.selected"/>
     {{ drawTree(this.treeData) }}
   </div>
 </template>
@@ -10,52 +9,98 @@
 import data from '../../data/all-data'
 // import data from '../../data/pet-data'
 import * as d3 from 'd3';
-import BarChart from './Analytics.vue'
 
 export default {
-  components: { BarChart },
+  components: { },
   data() {
     return {
       selected: {"name": data.name, "height": data.height, "subcnt": data.subcnt},
       treeData: data,
+      width: 1440,
+      height: 30 * data.children.length
     }
   }, 
   methods: {
     drawTree(treeData) {
+      
+      
+      this.update(treeData);
+
+      d3.select(self.frameElement).style("height", "500px");
+      console.log("in tree: " + this.selected.name)
+      
+    },
+    // Toggle children on click.
+    click(d) {
+      if (d.children) {
+        d._children = d.children;
+        d.children = null;
+      } else {
+        d.children = d._children;
+        d._children = null;
+      }
+      this.update(d);
+      this.selected = {"name": d.name, "children": d.children, "height": d.height, "subcnt": d.subcnt};
+      this.$emit('updatedRoot', this.selected)
+    },
+    drawLegend(svg) {
+      // Add color annotations
+      var circles = ['unselected', 'selected', 'no subcategories'];
+      var itemWidth = 100;
+      var itemHeight = 18;
+
+      var legend = svg.selectAll(".legend")
+        .data(circles)
+        .enter()
+        .append("g")
+        .attr("transform", function(d,index) { return "translate(" + (1000 + index * itemWidth) + "," + itemHeight + ")"; })
+        .attr("class","legend");
+
+      legend.append('rect')
+        .attr("width",15)
+        .attr("height",15)
+        .attr("fill", function(d) { 
+          if (d === 'selected') {
+            return "#034f84";
+          } else if (d === "no subcategories") {
+            return "#b2b2b2";
+          }
+          return "lightsteelblue"; 
+        });
+        
+      legend.append('text')
+        .attr("x", 20)
+        .attr("y",12)
+        .text(function(d) { return d; });
+    },
+    update(source) {
       // clear previous tree
       d3.select('svg').remove();
       // ************** Generate the tree diagram	 *****************
-      root = treeData;
-      var margin = {top: 20, right: 20, bottom: 20, left: 200},
-        width = 1440,
-        height = 30 * root.children.length;
+      var root = this.treeData;
+      var margin = {top: 20, right: 20, bottom: 20, left: 200};
+        // width = 1440,
+        // height = 30 * root.children.length;
         
-      var i = 0,
-        duration = 10,
-        root;
-
-      var tree = d3.layout.tree()
-        .size([height, width]);
-
-      var diagonal = d3.svg.diagonal()
-        .projection(function(d) { return [d.y, d.x]; });
 
       var svg = d3.select("body").append("svg")
-        .attr("width", width + margin.right + margin.left)
-        .attr("height", height + margin.top + margin.bottom)
+        .attr("width", this.width + margin.right + margin.left)
+        .attr("height", this.height + margin.top + margin.bottom)
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         // .attr("transform", "translate(" + (margin.left + width/2) + "," + margin.top + ")");
 
       
-      root.x0 = height / 2;
+      root.x0 = this.height / 2;
       root.y0 = 0;
-      update(root);
+        var i = 0,
+        duration = 10;
 
-      d3.select(self.frameElement).style("height", "500px");
+      var tree = d3.layout.tree()
+        .size([this.height, this.width]);
 
-      function update(source) {
-
+      var diagonal = d3.svg.diagonal()
+        .projection(function(d) { return [d.y, d.x]; });
         // Compute the new tree layout.
         var nodes = tree.nodes(root).reverse(),
           links = tree.links(nodes);
@@ -71,7 +116,7 @@ export default {
         var nodeEnter = node.enter().append("g")
           .attr("class", "node")
           .attr("transform", function() { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-          .on("click", click);
+          .on("click", this.click);
 
         nodeEnter.append("circle")
           .attr("r", 1e-6)
@@ -149,56 +194,9 @@ export default {
         d.x0 = d.x;
         d.y0 = d.y;
         });
-      }
-
-      // Toggle children on click.
-      function click(d) {
-        if ((d._children != null && d._children.length == 0) || (d.children != null && d.children.length == 0)) {
-          alert('no subcategories under ' + d.name)
-          return;
-        }
-        if (d.children) {
-        d._children = d.children;
-        d.children = null;
-        } else {
-        d.children = d._children;
-        d._children = null;
-        }
-        update(d);
-      }
-      
-      // Add color annotations
-      var circles = ['unselected', 'selected', 'no subcategories'];
-      var itemWidth = 100;
-      var itemHeight = 18;
-
-      var legend = svg.selectAll(".legend")
-        .data(circles)
-        .enter()
-        .append("g")
-        .attr("transform", function(d,index) { return "translate(" + (1000 + index * itemWidth) + "," + itemHeight + ")"; })
-        .attr("class","legend");
-
-      legend.append('rect')
-        .attr("width",15)
-        .attr("height",15)
-        .attr("fill", function(d) { 
-          if (d === 'selected') {
-            return "#034f84";
-          } else if (d === "no subcategories") {
-            return "#b2b2b2";
-          }
-          return "lightsteelblue"; 
-        });
         
-      legend.append('text')
-        .attr("x", 20)
-        .attr("y",12)
-        .text(function(d) { return d; });
-    },
-    updateSelected(d) {
-      this.selected = {"name": d.name, "height": d.height, "subcnt": d.subcnt};
-    }
+        this.drawLegend(svg);
+      }
   },
 }
 </script>

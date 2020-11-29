@@ -1,14 +1,17 @@
 <template>
   <div class="chart-wrapper">
-    <chart :options="chartOptionsBar"></chart>
+    <chart :options="this.chartOptionsBar"></chart>
+    <Tree @updatedRoot="updateTitle"/>
   </div>
 </template>
 
 <script>
+import Tree from './Tree.vue';
 import 'echarts/lib/component/title';
+import allData from '../../data/all-data';
 export default {
   name:'BarChart',
-  props: ['currentRoot'],
+  components: { Tree },
   data () {
     return {
       chartOptionsBar: {
@@ -25,20 +28,22 @@ export default {
           }
         ],
         title: {
-          text: this.getTitle(),
+          text: 'How Finely Divided Are Subcategories Under root',
           x: 'center',
           textStyle: {
             fontSize: 24
           }
         }
-      }
+      },
+      currentRoot: {name: allData.name, children: allData.children},
     }
   },
   methods: {
-    getTitle() {
-      console.log("in chart: " + JSON.stringify(this.currentRoot))
-      return 'How Finely Divided Are Subcategories Under ' + this.currentRoot.name;
-    }
+    updateTitle(selected) {
+      console.log("in chart: " + selected.name)
+      this.currentRoot = selected;
+      this.chartOptionsBar.title.text = 'How Finely Divided Are Subcategories Under ' + this.currentRoot.name;
+    },
   },
 }
 </script>
