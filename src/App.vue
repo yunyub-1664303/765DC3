@@ -4,18 +4,17 @@
       Amazon Categories Tree
     </h1>
     <Tree/>
-
+    
   </div>
 </template>
 
 <script>
 import Tree from './components/Tree.vue'
 
+
 export default {
   name: 'App',
-  components: {
-    Tree
-  }
+  components: { Tree }
 }
 </script>
 

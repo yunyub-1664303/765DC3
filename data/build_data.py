@@ -8,10 +8,10 @@ out_file = 'all-data.json'
 # out_file = 'pet-data.json'
 
 class Node:
-  def __init__(self, id: int, name: str, sub_cnt: int, children_ids: [int]):
+  def __init__(self, id: int, name: str, subcnt: int, children_ids: [int]):
     self.id = id
     self.name = name
-    self.sub_cnt = sub_cnt
+    self.subcnt = subcnt
     self.children_ids = children_ids
     
   def __eq__(self, other):
@@ -50,7 +50,7 @@ for i in range(len(nodes) - 1, -1, -1):
   node._children = children
 
 json_root = nodes[0].to_json()
-res = {"name": json_root['name'], "subcnt": json_root['sub_cnt'], "children": json_root['_children']}
+res = {"name": json_root['name'], "height": json_root['height'], "subcnt": json_root['subcnt'], "children": json_root['_children']}
 # for node in nodes:
 #   json_nodes.append(node.to_json())
 

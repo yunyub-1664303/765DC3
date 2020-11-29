@@ -1,9 +1,7 @@
 <template>
   <div>
-    <body>
-      <!-- <tree id="tree" :data="tree" :duration="1" @change="showBranch"></tree> -->
-      {{ drawTree(this.treeData) }}
-    </body>
+    <BarChart v-bind:currentRoot="this.selected"/>
+    {{ drawTree(this.treeData) }}
   </div>
 </template>
 
@@ -12,25 +10,20 @@
 import data from '../../data/all-data'
 // import data from '../../data/pet-data'
 import * as d3 from 'd3';
+import BarChart from './Analytics.vue'
 
 export default {
-  props: ['on'],
-  components: {
-    // tree
-  },
+  components: { BarChart },
   data() {
     return {
+      selected: {"name": data.name, "height": data.height, "subcnt": data.subcnt},
       treeData: data,
     }
   }, 
   methods: {
-    showBranch(element) {
-      console.log(element)
-      element.data.children = element.data._children
-    }, 
     drawTree(treeData) {
       // clear previous tree
-       d3.select('svg').remove();
+      d3.select('svg').remove();
       // ************** Generate the tree diagram	 *****************
       root = treeData;
       var margin = {top: 20, right: 20, bottom: 20, left: 200},
@@ -43,8 +36,6 @@ export default {
 
       var tree = d3.layout.tree()
         .size([height, width]);
-        // .size([10*height, width])
-        // .separation(function separation(a, b) { return a.parent == b.parent ? 2 : 1; });
 
       var diagonal = d3.svg.diagonal()
         .projection(function(d) { return [d.y, d.x]; });
@@ -53,7 +44,7 @@ export default {
         .attr("width", width + margin.right + margin.left)
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
-        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         // .attr("transform", "translate(" + (margin.left + width/2) + "," + margin.top + ")");
 
       
@@ -176,6 +167,37 @@ export default {
         update(d);
       }
       
+      // Add color annotations
+      var circles = ['unselected', 'selected', 'no subcategories'];
+      var itemWidth = 100;
+      var itemHeight = 18;
+
+      var legend = svg.selectAll(".legend")
+        .data(circles)
+        .enter()
+        .append("g")
+        .attr("transform", function(d,index) { return "translate(" + (1000 + index * itemWidth) + "," + itemHeight + ")"; })
+        .attr("class","legend");
+
+      legend.append('rect')
+        .attr("width",15)
+        .attr("height",15)
+        .attr("fill", function(d) { 
+          if (d === 'selected') {
+            return "#034f84";
+          } else if (d === "no subcategories") {
+            return "#b2b2b2";
+          }
+          return "lightsteelblue"; 
+        });
+        
+      legend.append('text')
+        .attr("x", 20)
+        .attr("y",12)
+        .text(function(d) { return d; });
+    },
+    updateSelected(d) {
+      this.selected = {"name": d.name, "height": d.height, "subcnt": d.subcnt};
     }
   },
 }
@@ -218,16 +240,10 @@ path.link {
   stroke: #ccc;
   stroke-width: 2px;
 }
-div#container {
-  height: 400px;
-  width: 400px;
-  border:2px solid #000;
-  overflow: scroll;
- }
-svg#sky {
+/* svg#sky {
   height: 100px;
   width: 1100px;
   border:1px dotted #ccc;
   background-color: #ccc;
-}
+} */
 </style>

@@ -10,7 +10,9 @@
   "dependencies": {
     "core-js": "^3.6.5",
     "d3": "^3.5.17",
+    "echarts": "^4.9.0",
     "vue": "^2.6.11",
+    "vue-echarts": "^5.0.0-beta.0",
     "vued3tree": "^5.1.0"
   },
   "devDependencies": {
