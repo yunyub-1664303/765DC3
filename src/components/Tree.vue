@@ -14,7 +14,7 @@ export default {
   components: { },
   data() {
     return {
-      selected: {"name": data.name, "height": data.height, "subcnt": data.subcnt},
+      selected: {"name": data.name, "children": data.children},
       treeData: data,
       width: 1440,
       height: 30 * data.children.length
@@ -22,26 +22,32 @@ export default {
   }, 
   methods: {
     drawTree(treeData) {
-      
-      
       this.update(treeData);
-
       d3.select(self.frameElement).style("height", "500px");
-      console.log("in tree: " + this.selected.name)
-      
     },
     // Toggle children on click.
     click(d) {
       if (d.children) {
+        // collapse
         d._children = d.children;
         d.children = null;
+        this.selected = {"name": d.parent.name, "children": d.parent.children};
       } else {
+        // expand
         d.children = d._children;
         d._children = null;
+        this.selected = {"name": d.name, "children": d.children};
+        // collapse any other children on the same level
+        for (var i = 0; i < d.parent.children.length; i++) {
+          var curr = d.parent.children[i];
+          if (curr.id !== d.id && curr.children) {
+            curr._children = curr.children;
+            curr.children = null;
+          }
+        }
       }
-      this.update(d);
-      this.selected = {"name": d.name, "children": d.children, "height": d.height, "subcnt": d.subcnt};
       this.$emit('updatedRoot', this.selected)
+      this.update(d);
     },
     drawLegend(svg) {
       // Add color annotations
