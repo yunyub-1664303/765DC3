@@ -3,18 +3,20 @@
     <h1>
       Amazon Categories Tree
     </h1>
-    <BarChart/>
+    <SearchBox class="center"/>
+    <ChartAndTree/>
     
   </div>
 </template>
 
 <script>
 
-import BarChart from './components/Analytics.vue'
-
+import ChartAndTree from './components/Analytics.vue'
+import SearchBox from './components/SearchBox.vue'
 export default {
   name: 'App',
-  components: { BarChart }
+  components: { ChartAndTree,
+  SearchBox }
 }
 </script>
 
@@ -26,5 +28,11 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
+}
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 17%;
 }
 </style>

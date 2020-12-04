@@ -1,8 +1,9 @@
 <template>
   <div class="chart-wrapper">
+    
     <div style="display: table-row; width: 100%">
-        <chart :options="this.chartOptionsBar" style="display: table-cell; position: relative; left: 300px; overflow: scroll;"></chart>
-        <chart :options="this.option2" style="display: table-cell; position: relative; left: 400px;"></chart>
+        <chart :options="this.fvscat" style="display: table-cell; position: relative; left: 300px; overflow: scroll;"></chart>
+        <chart :options="this.hvsf" style="display: table-cell; position: relative; left: 400px;"></chart>
     </div>
     <Tree @updatedRoot="updateChart"/>
   </div>
@@ -11,13 +12,17 @@
 <script>
 import Tree from './Tree.vue';
 import 'echarts/lib/component/title';
+import 'echarts/lib/component/tooltip'
 import allData from '../../data/all-data';
+
 export default {
   name:'BarChart',
-  components: { Tree },
+  components: { Tree,
+     },
   data () {
     return {
-      chartOptionsBar: {
+      // bar: getBar(),
+      fvscat: {
         xAxis: {
           data: this.updateFineAxis(allData)[0],
           name: "category name",
@@ -49,8 +54,11 @@ export default {
           }
         },
         color: ["#034f84"],
+        tooltip: {
+            trigger: 'axis',
+        },
       },
-      option2: {
+      hvsf: {
         xAxis: {
           data: this.updateAxis(allData)[0],
           name: "average number of products in each subcategory",
@@ -58,7 +66,7 @@ export default {
           nameTextStyle: {
             padding: [10, 0, 0, 0],
             fontSize: 12
-          }
+          },
         },
         yAxis: {
           type: 'value',
@@ -82,22 +90,26 @@ export default {
           }
         },
         color: ["#034f84"],
+        
+        tooltip: {
+          trigger: 'axis',
+        },
       }
     }
   },
   methods: {
     updateChart(selected) {
-      this.chartOptionsBar.title.text = 'Fineness of Subcategories Under  ' + selected.name;
+      this.fvscat.title.text = 'Fineness of Subcategories Under  ' + selected.name;
       var axis = this.updateFineAxis(selected);
-      this.chartOptionsBar.xAxis.data = axis[0]
-      this.chartOptionsBar.series = {type: 'bar', data: axis[1]};
-      this.chartOptionsBar.color = ["#034f84"];
+      this.fvscat.xAxis.data = axis[0]
+      this.fvscat.series = {type: 'bar', data: axis[1]};
+      this.fvscat.color = ["#034f84"];
 
-      this.option2.title.text = 'Height vs Fineness Under ' + selected.name;
+      this.hvsf.title.text = 'Height vs Fineness Under ' + selected.name;
       axis = this.updateAxis(selected);
-      this.option2.xAxis.data = axis[0]
-      this.option2.series = {type: 'bar', data: axis[1]};
-      this.option2.color = ["#034f84"];
+      this.hvsf.xAxis.data = axis[0]
+      this.hvsf.series = {type: 'bar', data: axis[1]};
+      this.hvsf.color = ["#034f84"];
     },
     updateAxis(selected) {
       var aux = [];
@@ -113,9 +125,9 @@ export default {
         xAxisName.push(aux[i].name);
         xAxis.push(aux[i].fineness);
         yAxis.push(aux[i].height);
-        console.log(xAxisName[i] + ": " + yAxis[i])
+        // console.log(xAxisName[i] + ": " + yAxis[i])
       }
-      return [xAxis, yAxis];
+      return [xAxisName, yAxis];
     },
     updateFineAxis(selected) {
       var aux = [];
@@ -129,7 +141,7 @@ export default {
       for (i = 0; i < aux.length; i++) {
         xAxis.push(aux[i].name);
         yAxis.push(aux[i].fineness);
-        console.log(xAxis[i] + ": " + yAxis[i]);
+        // console.log(xAxis[i] + ": " + yAxis[i]);
       }
       return [xAxis, yAxis];
     }
@@ -137,14 +149,29 @@ export default {
 }
 </script>
 
-<style scoped>
-/* .chart-wrapper {
-  width: 100%;
-  height: 700px;
+<style >
+/* // .chart-wrapper {
+//   width: 100%;
+//   height: 700px;
+// }
+// .echarts {
+//   width: 100%;
+//   height: 100%;
+// }
+figure
+  display inline-block
+  position relative
+  margin 2em auto
+  border 1px solid rgba(0, 0, 0, .1)
+  border-radius 8px
+  box-shadow 0 0 45px rgba(0, 0, 0, .2)
+  padding 1.5em 2em
+  min-width: calc(40vw + 4em) */
+.center {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+  width: 50%;
 }
-.echarts {
-  width: 100%;
-  height: 100%;
-} */
 
 </style>
