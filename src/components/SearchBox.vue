@@ -4,7 +4,7 @@
       :options="options"
       :disabled="false"
       name="categories"
-      :maxItem="10"
+      :maxItem="100"
       placeholder="Please select an option"
       @selected="update">
     </Dropdown>
@@ -13,12 +13,12 @@
 
 <script>
 import Dropdown from 'vue-simple-search-dropdown';
-import data from '../../data/all-data'
+import nodes from '../../data/all-nodes.json'
 export default {
   components: { Dropdown },
   data() {
     return {
-      options: data.children
+      options: nodes
     }
   }, 
   methods: {

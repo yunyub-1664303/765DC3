@@ -4,6 +4,7 @@ import csv
 
 src_file = 'all-nodes.csv'
 out_file = 'all-data.json'
+out_nodes_file = 'all-nodes.json'
 # src_file = 'PetSupplies.csv'
 # out_file = 'pet-data.json'
 
@@ -32,7 +33,7 @@ nodes = []
 with open(src_file) as file:
   reader = csv.DictReader(file)
   for row in reader:
-    new_node = Node(row['id'], row['name'], row['subtreeProductCount'], literal_eval(row['children']), row['pathName'])
+    new_node = Node(row['id'], row['name'], row['subtreeProductCount'], literal_eval(row['children']), literal_eval(row['pathName']))
     nodes.append(new_node)
 
 def get_height(node):
@@ -54,8 +55,10 @@ json_root = nodes[0].to_json()
 json_nodes = []
 for node in nodes:
   json_nodes.append(node.to_json())
-res = {"name": json_root['name'], "height": json_root['height'], "subcnt": json_root['subcnt'], "path": [], "children": json_root['_children'], "all": json_nodes}
-
+res = {"name": json_root['name'], "height": json_root['height'], "subcnt": json_root['subcnt'], "path": [], "children": json_root['_children']}
 
 with open(out_file, 'w') as outfile:
   json.dump(res, outfile)
+
+with open(out_nodes_file, 'w') as outfile:
+  json.dump(json_nodes, outfile)

@@ -112,7 +112,7 @@ export default {
       
     },
     updateChart(selected) {
-      this.fvscat.title.text = 'Fineness of Subcategories Under  ' + selected.name;
+      this.fvscat.title.text = 'Fineness of Subcategories Under ' + selected.name;
       var axis = this.updateFineAxis(selected);
       this.fvscat.xAxis.data = axis[0]
       this.fvscat.series = {type: 'bar', data: axis[1]};

@@ -17,16 +17,37 @@ export default {
       selected: {"name": data.name, "children": data.children},
       treeData: data,
       width: 1440,
-      height: 30 * data.children.length
+      height: 30 * data.children.length,
+      prevSearch: [],
     }
   }, 
   methods: {
+    backToInitial(curr) {
+      if (curr.children == null || curr.children.length == 0) {
+        return;
+      }
+      for (var i = 0; i < curr.children.length; i++) {
+        if (curr.children[i].children != null) {
+          this.backToInitial(curr.children[i]);
+          break;
+        }
+      }
+      if (curr.name !== "root") {
+        curr._children = curr.children;
+        curr.children = null;
+      }
+    },
     drawTree(treeData) {
       this.update(treeData);
       d3.select(self.frameElement).style("height", "500px");
     },
     // Toggle children on click.
-    click(d) {
+    click(d, viaClick) {
+      // collapse all opened branches if we click after search
+      if (viaClick && this.prevSearch.length != 0) {
+        this.prevSearch = [];
+        this.backToInitial(this.treeData);
+      }
       if ((d.children == null && d._children.length == 0) || (d._children == null && d.children.length == 0)) {
         alert("no subcategories available");
         return;
@@ -210,7 +231,33 @@ export default {
   },
   watch: {
     search: function() {
-      console.log(this.search)
+      var path = this.search.path;
+      if (path == undefined) {
+        return;
+      }
+      // back to initial condition first
+      this.backToInitial(this.treeData);
+      
+      // update chart to "under root"
+      if (path.length == 0) {
+        this.$emit('updatedRoot', this.treeData);
+      }
+
+      var parent = this.treeData;
+      for (var i = 0; i < path.length; i++) {
+        var next = path[i];
+        for (var j = 0; j < parent.children.length; j++) {
+          var child = parent.children[j];
+          if (child.name === next) {
+            if (child.children == null) {
+              this.click(child, false);
+            }
+            parent = child;
+            break;
+          }
+        }
+      }
+      this.prevSearch = path;
     }
   }
 }
