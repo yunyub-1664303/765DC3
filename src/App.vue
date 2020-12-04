@@ -3,8 +3,8 @@
     <h1>
       Amazon Categories Tree
     </h1>
-    <SearchBox class="center"/>
-    <ChartAndTree/>
+    <SearchBox class="center" @newSearch="updateSearch"/>
+    <ChartAndTree v-bind:search="this.search"/>
     
   </div>
 </template>
@@ -16,7 +16,17 @@ import SearchBox from './components/SearchBox.vue'
 export default {
   name: 'App',
   components: { ChartAndTree,
-  SearchBox }
+  SearchBox }, 
+  data() {
+    return {
+      search: ''
+    }
+  },
+  methods: {
+    updateSearch(search) {
+      this.search = search;
+    }
+  }
 }
 </script>
 
@@ -28,11 +38,5 @@ export default {
   text-align: center;
   color: #2c3e50;
   margin-top: 60px;
-}
-.center {
-  display: block;
-  margin-left: auto;
-  margin-right: auto;
-  width: 17%;
 }
 </style>

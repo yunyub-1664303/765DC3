@@ -5,7 +5,8 @@
       :disabled="false"
       name="categories"
       :maxItem="10"
-      placeholder="Please select an option">
+      placeholder="Please select an option"
+      @selected="update">
     </Dropdown>
   </div>
 </template>
@@ -18,6 +19,12 @@ export default {
   data() {
     return {
       options: data.children
+    }
+  }, 
+  methods: {
+    update(selected) {
+      // console.log(selected);
+      this.$emit('newSearch', selected);
     }
   }
 }

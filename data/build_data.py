@@ -8,11 +8,12 @@ out_file = 'all-data.json'
 # out_file = 'pet-data.json'
 
 class Node:
-  def __init__(self, id: int, name: str, subcnt: int, children_ids: [int]):
+  def __init__(self, id: int, name: str, subcnt: int, children_ids: [int], path: [str]):
     self.id = id
     self.name = name
     self.subcnt = subcnt
     self.children_ids = children_ids
+    self.path = path
     
   def __eq__(self, other):
     if isinstance(other, self.__class__):
@@ -31,7 +32,7 @@ nodes = []
 with open(src_file) as file:
   reader = csv.DictReader(file)
   for row in reader:
-    new_node = Node(row['id'], row['name'], row['subtreeProductCount'], literal_eval(row['children']))
+    new_node = Node(row['id'], row['name'], row['subtreeProductCount'], literal_eval(row['children']), row['pathName'])
     nodes.append(new_node)
 
 def get_height(node):
@@ -50,9 +51,11 @@ for i in range(len(nodes) - 1, -1, -1):
   node._children = children
 
 json_root = nodes[0].to_json()
-res = {"name": json_root['name'], "height": json_root['height'], "subcnt": json_root['subcnt'], "children": json_root['_children']}
-# for node in nodes:
-#   json_nodes.append(node.to_json())
+json_nodes = []
+for node in nodes:
+  json_nodes.append(node.to_json())
+res = {"name": json_root['name'], "height": json_root['height'], "subcnt": json_root['subcnt'], "path": [], "children": json_root['_children'], "all": json_nodes}
+
 
 with open(out_file, 'w') as outfile:
   json.dump(res, outfile)

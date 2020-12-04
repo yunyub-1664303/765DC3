@@ -11,7 +11,7 @@ import data from '../../data/all-data'
 import * as d3 from 'd3';
 
 export default {
-  components: { },
+  props: ['search'],
   data() {
     return {
       selected: {"name": data.name, "children": data.children},
@@ -27,6 +27,10 @@ export default {
     },
     // Toggle children on click.
     click(d) {
+      if ((d.children == null && d._children.length == 0) || (d._children == null && d.children.length == 0)) {
+        alert("no subcategories available");
+        return;
+      }
       if (d.children) {
         // collapse
         d._children = d.children;
@@ -46,7 +50,7 @@ export default {
           }
         }
       }
-      this.$emit('updatedRoot', this.selected)
+      this.$emit('updatedRoot', this.selected);
       this.update(d);
     },
     drawLegend(svg) {
@@ -59,7 +63,7 @@ export default {
         .data(circles)
         .enter()
         .append("g")
-        .attr("transform", function(d,index) { return "translate(" + (1000 + index * itemWidth) + "," + itemHeight + ")"; })
+        .attr("transform", function(d,index) { return "translate(" + (800 + index * itemWidth) + "," + itemHeight + ")"; })
         .attr("class","legend");
 
       legend.append('rect')
@@ -111,99 +115,104 @@ export default {
         var nodes = tree.nodes(root).reverse(),
           links = tree.links(nodes);
 
-        // Normalize for fixed-depth.
-        nodes.forEach(function(d) { d.y = d.depth * 180; });
+      // Normalize for fixed-depth.
+      nodes.forEach(function(d) { d.y = d.depth * 180; });
 
-        // Update the nodes…
-        var node = svg.selectAll("g.node")
-          .data(nodes, function(d) { return d.id || (d.id = ++i); });
+      // Update the nodes…
+      var node = svg.selectAll("g.node")
+        .data(nodes, function(d) { return d.id || (d.id = ++i); });
 
-        // Enter any new nodes at the parent's previous position.
-        var nodeEnter = node.enter().append("g")
-          .attr("class", "node")
-          .attr("transform", function() { return "translate(" + source.y0 + "," + source.x0 + ")"; })
-          .on("click", this.click);
+      // Enter any new nodes at the parent's previous position.
+      var nodeEnter = node.enter().append("g")
+        .attr("class", "node")
+        .attr("transform", function() { return "translate(" + source.y0 + "," + source.x0 + ")"; })
+        .on("click", this.click);
 
-        nodeEnter.append("circle")
-          .attr("r", 1e-6)
-          .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
+      nodeEnter.append("circle")
+        .attr("r", 1e-6)
+        .style("fill", function(d) { return d._children ? "lightsteelblue" : "#fff"; });
 
-        nodeEnter.append("text")
-          .attr("x", function(d) { return d.children || d._children ? -13 : 13; })
-          .attr("dy", ".35em")
-          .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
-          .text(function(d) { return d.name; })
-          .style("fill-opacity", 1e-6);
+      nodeEnter.append("text")
+        .attr("x", function(d) { return d.children || d._children ? -13 : 13; })
+        .attr("dy", ".35em")
+        .attr("text-anchor", function(d) { return d.children || d._children ? "end" : "start"; })
+        .text(function(d) { return d.name; })
+        .style("fill-opacity", 1e-6);
 
-        // Transition nodes to their new position.
-        var nodeUpdate = node.transition()
-          .duration(duration)
-          .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
+      // Transition nodes to their new position.
+      var nodeUpdate = node.transition()
+        .duration(duration)
+        .attr("transform", function(d) { return "translate(" + d.y + "," + d.x + ")"; });
 
-        nodeUpdate.select("circle")
-          .attr("r", 10)
-          .style("fill", function(d) { 
-            if ((d._children == null && d.children.length == 0) || (d.children == null && d._children.length == 0)) {
-              return "#b2b2b2";
-            }
-            return d._children ? "lightsteelblue" : "#034f84"; 
-          });
-
-        nodeUpdate.select("text")
-          .style("fill-opacity", 1);
-
-        // Transition exiting nodes to the parent's new position.
-        var nodeExit = node.exit().transition()
-          .duration(duration)
-          .attr("transform", function() { return "translate(" + source.y + "," + source.x + ")"; })
-          .remove();
-
-        nodeExit.select("circle")
-          .attr("r", 1e-6);
-
-        nodeExit.select("text")
-          .style("fill-opacity", 1e-6);
-
-        // Update the links…
-        var link = svg.selectAll("path.link")
-          .data(links, function(d) { return d.target.id; })
-          ;
-
-        // Enter any new links at the parent's previous position.
-        link.enter().insert("path", "g")
-          .attr("class", "link")
-          .attr("d", function() {
-          var o = {x: source.x0, y: source.y0};
-          return diagonal({source: o, target: o});
-          })
-          .attr("fill", "none")
-          .attr("stroke", "#555")
-          .attr("stroke-opacity", 0.4)
-          .attr("stroke-width", 1.5);
-
-        // Transition links to their new position.
-        link.transition()
-          .duration(duration)
-          .attr("d", diagonal);
-
-        // Transition exiting nodes to the parent's new position.
-        link.exit().transition()
-          .duration(duration)
-          .attr("d", function() {
-          var o = {x: source.x, y: source.y};
-          return diagonal({source: o, target: o});
-          })
-          .remove();
-
-        // Stash the old positions for transition.
-        nodes.forEach(function(d) {
-        d.x0 = d.x;
-        d.y0 = d.y;
+      nodeUpdate.select("circle")
+        .attr("r", 10)
+        .style("fill", function(d) { 
+          if ((d._children == null && d.children.length == 0) || (d.children == null && d._children.length == 0)) {
+            return "#b2b2b2";
+          }
+          return d._children ? "lightsteelblue" : "#034f84"; 
         });
-        
-        this.drawLegend(svg);
-      }
+
+      nodeUpdate.select("text")
+        .style("fill-opacity", 1);
+
+      // Transition exiting nodes to the parent's new position.
+      var nodeExit = node.exit().transition()
+        .duration(duration)
+        .attr("transform", function() { return "translate(" + source.y + "," + source.x + ")"; })
+        .remove();
+
+      nodeExit.select("circle")
+        .attr("r", 1e-6);
+
+      nodeExit.select("text")
+        .style("fill-opacity", 1e-6);
+
+      // Update the links…
+      var link = svg.selectAll("path.link")
+        .data(links, function(d) { return d.target.id; })
+        ;
+
+      // Enter any new links at the parent's previous position.
+      link.enter().insert("path", "g")
+        .attr("class", "link")
+        .attr("d", function() {
+        var o = {x: source.x0, y: source.y0};
+        return diagonal({source: o, target: o});
+        })
+        .attr("fill", "none")
+        .attr("stroke", "#555")
+        .attr("stroke-opacity", 0.4)
+        .attr("stroke-width", 1.5);
+
+      // Transition links to their new position.
+      link.transition()
+        .duration(duration)
+        .attr("d", diagonal);
+
+      // Transition exiting nodes to the parent's new position.
+      link.exit().transition()
+        .duration(duration)
+        .attr("d", function() {
+        var o = {x: source.x, y: source.y};
+        return diagonal({source: o, target: o});
+        })
+        .remove();
+
+      // Stash the old positions for transition.
+      nodes.forEach(function(d) {
+      d.x0 = d.x;
+      d.y0 = d.y;
+      });
+      
+      this.drawLegend(svg);
+    }
   },
+  watch: {
+    search: function() {
+      console.log(this.search)
+    }
+  }
 }
 </script>
 
