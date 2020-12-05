@@ -5,7 +5,7 @@
       :disabled="false"
       name="categories"
       :maxItem="100"
-      placeholder="Please select an option"
+      placeholder="Select a category you want to explore"
       @selected="update">
     </Dropdown>
   </div>

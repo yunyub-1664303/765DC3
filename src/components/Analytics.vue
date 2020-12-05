@@ -1,7 +1,12 @@
 <template>
-  <div style="display: table-row; width: 100%">
-    <chart :options="this.fvscat" @click="this.click" style="display: table-cell; position: relative; left: 100px;"></chart>
-    <chart :options="this.hvsf" @click="this.click" style="display: table-cell; position: relative; left: 200px;"></chart>
+  <div>
+    <div style="display: table-row; width: 100%">
+      <chart :options="this.fvscat" @click="this.click" style="display: table-cell; position: relative; left: 100px;"></chart>
+      <chart :options="this.hvsf" @click="this.click" style="display: table-cell; position: relative; left: 200px;"></chart>
+    </div>
+    <p>
+      Drag two sides of the bar to select different ranges; drag the whole slide bar to select different subsets of data
+    </p>
     <Tree @updatedRoot="updateChart" v-bind:search="this.search"/>
   </div>
 </template>
@@ -10,6 +15,7 @@
 import Tree from './Tree.vue';
 import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/title';
+import 'echarts/lib/component/dataZoom';
 import allData from '../../data/all-data';
 
 export default {
@@ -32,7 +38,7 @@ export default {
         },
         yAxis: {
           type: 'value',
-          name: 'fineness: subProductCount / (numChildren + 1)',
+          name: 'roughness: subProductCount / (numChildren + 1)',
           nameTextStyle: {
             padding: [0, 0, 0, 200],
             fontSize: 14
@@ -43,7 +49,7 @@ export default {
           data: this.updateFineAxis(allData)[1]
         },
         title: {
-          text: 'Fineness of Subcategories Under root',
+          text: 'Roughness of Subcategories Under root',
           x: 'center',
           textStyle: {
             fontSize: 20
@@ -53,11 +59,17 @@ export default {
         tooltip: {
           trigger: 'axis',
         },
+        dataZoom: [{
+          start: 800,
+          type: "inside"
+        }, {
+          start: 80
+        }],
       },
       hvsf: {
         xAxis: {
           data: this.updateAxis(allData)[0],
-          name: "category name (sorted by increasing fineness)",
+          name: "category name (sorted by increasing roughness)",
           nameLocation: "center",
           nameTextStyle: {
             padding: [10, 0, 0, 0],
@@ -77,17 +89,22 @@ export default {
           data: this.updateAxis(allData)[1]
         },
         title: {
-          text: 'Height vs Fineness Under root',
+          text: 'Height vs Roughness Under root',
           x: 'center',
           textStyle: {
             fontSize: 20
           }
         },
         color: ["#034f84"],
-        
         tooltip: {
           trigger: 'axis',
         },
+        dataZoom: [{
+          start: 800,
+          type: "inside"
+        }, {
+          start: 80
+        }],
       },
     }
   },
@@ -112,13 +129,13 @@ export default {
       
     },
     updateChart(selected) {
-      this.fvscat.title.text = 'Fineness of Subcategories Under ' + selected.name;
+      this.fvscat.title.text = 'Roughness of Subcategories Under ' + selected.name;
       var axis = this.updateFineAxis(selected);
       this.fvscat.xAxis.data = axis[0]
       this.fvscat.series = {type: 'bar', data: axis[1]};
       this.fvscat.color = ["#034f84"];
 
-      this.hvsf.title.text = 'Height vs Fineness Under ' + selected.name;
+      this.hvsf.title.text = 'Height vs Roughness Under ' + selected.name;
       axis = this.updateAxis(selected);
       this.hvsf.xAxis.data = axis[0]
       this.hvsf.series = {type: 'bar', data: axis[1]};
@@ -131,12 +148,12 @@ export default {
       var yAxis = [];
       for (var i = 0; i < selected.children.length; i++) {
         var curr = selected.children[i];
-        aux.push({name: curr.name, fineness: curr.subcnt / (curr._children.length + 1), height: curr.height});
+        aux.push({name: curr.name, roughness: curr.subcnt / (curr._children.length + 1), height: curr.height});
       }
-      aux.sort(function(a, b) {return a.fineness - b.fineness;});
+      aux.sort(function(a, b) {return a.roughness - b.roughness;});
       for (i = 0; i < aux.length; i++) {
         xAxisName.push(aux[i].name);
-        // xAxis.push(aux[i].fineness);
+        // xAxis.push(aux[i].roughness);
         yAxis.push({value: aux[i].height + 1, itemStyle: {color: "#034f84"}});
         // console.log(xAxisName[i] + ": " + yAxis[i])
       }
@@ -148,12 +165,12 @@ export default {
       var yAxis = [];
       for (var i = 0; i < selected.children.length; i++) {
         var curr = selected.children[i];
-        aux.push({name: curr.name, fineness: curr.subcnt / (curr._children.length + 1)});
+        aux.push({name: curr.name, roughness: curr.subcnt / (curr._children.length + 1)});
       }
-      aux.sort(function(a, b) {return a.fineness - b.fineness;});
+      aux.sort(function(a, b) {return a.roughness - b.roughness;});
       for (i = 0; i < aux.length; i++) {
         xAxis.push(aux[i].name);
-        yAxis.push({value: aux[i].fineness, itemStyle: {color: "#034f84"}});
+        yAxis.push({value: aux[i].roughness, itemStyle: {color: "#034f84"}});
         // console.log(xAxis[i] + ": " + yAxis[i]);
       }
       return [xAxis, yAxis];
@@ -169,5 +186,4 @@ export default {
   margin-right: auto;
   width: 17%;
 }
-
 </style>

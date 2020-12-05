@@ -3,9 +3,13 @@
     <h1>
       Amazon Categories Tree
     </h1>
+    <p>
+      Welcome to Amazon Categories Visualizer! <br>
+      If you want to explore certein category you have in mind, please type the category name in the search box below and select it from the popped-up options <br>
+      Or, feel free to click on the nodes from the tree below the chart to explore what categories we have!
+    </p>
     <SearchBox class="center" @newSearch="updateSearch"/>
     <ChartAndTree v-bind:search="this.search"/>
-    
   </div>
 </template>
 

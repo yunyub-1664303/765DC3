@@ -22,13 +22,14 @@ export default {
     }
   }, 
   methods: {
-    backToInitial(curr) {
+    // collapse everything under curr back to the initial position
+    collapseAllUnder(curr) {
       if (curr.children == null || curr.children.length == 0) {
         return;
       }
       for (var i = 0; i < curr.children.length; i++) {
         if (curr.children[i].children != null) {
-          this.backToInitial(curr.children[i]);
+          this.collapseAllUnder(curr.children[i]);
           break;
         }
       }
@@ -42,32 +43,32 @@ export default {
       d3.select(self.frameElement).style("height", "500px");
     },
     // Toggle children on click.
-    click(d, viaClick) {
+    click(d) {
       // collapse all opened branches if we click after search
-      if (viaClick && this.prevSearch.length != 0) {
-        this.prevSearch = [];
-        this.backToInitial(this.treeData);
-      }
+      // if (viaClick && this.prevSearch.length != 0) {
+      //   this.prevSearch = [];
+      //   this.collapseAllUnder(this.treeData);
+      // }
       if ((d.children == null && d._children.length == 0) || (d._children == null && d.children.length == 0)) {
         alert("no subcategories available");
         return;
       }
       if (d.children) {
         // collapse
-        d._children = d.children;
-        d.children = null;
-        this.selected = {"name": d.parent.name, "children": d.parent.children};
+        // d._children = d.children;
+        // d.children = null;
+        this.collapseAllUnder(d);
+        this.selected = {"name": d.parent.name, "children": d.parent.children, "depth": d.parent.depth};
       } else {
         // expand
         d.children = d._children;
         d._children = null;
-        this.selected = {"name": d.name, "children": d.children};
+        this.selected = {"name": d.name, "children": d.children, "depth": d.depth};
         // collapse any other children on the same level
         for (var i = 0; i < d.parent.children.length; i++) {
           var curr = d.parent.children[i];
           if (curr.id !== d.id && curr.children) {
-            curr._children = curr.children;
-            curr.children = null;
+            this.collapseAllUnder(curr);
           }
         }
       }
@@ -122,7 +123,7 @@ export default {
         // .attr("transform", "translate(" + (margin.left + width/2) + "," + margin.top + ")");
 
       
-      root.x0 = this.height / 2;
+      root.x0 = this.height / 2 + 100;
       root.y0 = 0;
         var i = 0,
         duration = 10;
@@ -236,7 +237,7 @@ export default {
         return;
       }
       // back to initial condition first
-      this.backToInitial(this.treeData);
+      this.collapseAllUnder(this.treeData);
       
       // update chart to "under root"
       if (path.length == 0) {
@@ -250,7 +251,7 @@ export default {
           var child = parent.children[j];
           if (child.name === next) {
             if (child.children == null) {
-              this.click(child, false);
+              this.click(child);
             }
             parent = child;
             break;
