@@ -1,6 +1,5 @@
 <template>
   <div>
-    {{ drawTree(this.treeData) }}
   </div>
 </template>
 
@@ -40,7 +39,7 @@ export default {
     },
     drawTree(treeData) {
       this.update(treeData);
-      d3.select(self.frameElement).style("height", "500px");
+      d3.select("#box").style("height", this.height);
     },
     // Toggle children on click.
     click(d) {
@@ -115,9 +114,11 @@ export default {
         // height = 30 * root.children.length;
         
 
-      var svg = d3.select("body").append("svg")
+      var svg = d3.select("#ana").append("svg")
+        .attr("class","svg_container")
         .attr("width", this.width + margin.right + margin.left)
         .attr("height", this.height + margin.top + margin.bottom)
+        .style("overflow", "scroll")
         .append("g")
         .attr("transform", "translate(" + margin.left + "," + margin.top + ")")
         // .attr("transform", "translate(" + (margin.left + width/2) + "," + margin.top + ")");
@@ -260,6 +261,9 @@ export default {
       }
       this.prevSearch = path;
     }
+  },
+  mounted() {
+    this.drawTree(this.treeData);
   }
 }
 </script>

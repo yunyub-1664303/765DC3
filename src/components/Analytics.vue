@@ -1,13 +1,23 @@
 <template>
-  <div>
-    <div style="display: table-row; width: 100%">
-      <chart :options="this.fvscat" @click="this.click" style="display: table-cell; position: relative; left: 100px;"></chart>
-      <chart :options="this.hvsf" @click="this.click" style="display: table-cell; position: relative; left: 200px;"></chart>
-    </div>
-    <p>
-      Drag two sides of the bar to select different ranges; drag the whole slide bar to select different subsets of data
-    </p>
-    <Tree @updatedRoot="updateChart" v-bind:search="this.search"/>
+  <div id="ana" style="max-height: 550px;">
+    <Tree  @updatedRoot="updateChart" v-bind:search="this.search"/>
+    <balloon
+      title = 'Roughness Chart'
+      position = 'bottom-right'
+      
+    >
+      <chart class="chart" :options="this.fvscat"></chart>
+      <p>
+        Drag two sides of the bar to select different ranges; drag the whole slide bar to select different subsets of data
+      </p>
+    </balloon>
+    <!-- <div >
+      
+      <chart :options="this.hvsf" @click="this.click"
+        class="row"></chart>
+    </div> -->
+    
+    
   </div>
 </template>
 
@@ -17,11 +27,14 @@ import 'echarts/lib/component/tooltip';
 import 'echarts/lib/component/title';
 import 'echarts/lib/component/dataZoom';
 import allData from '../../data/all-data';
+import { Balloon } from 'vue-balloon'
 
 export default {
   name:'BarChart',
-  components: { Tree,
-     },
+  components: { 
+    Tree,
+    Balloon,
+  },
   props: ['search'],
   data () {
     return {
@@ -185,5 +198,10 @@ export default {
   margin-left: auto;
   margin-right: auto;
   width: 17%;
+}
+.chart {
+  margin-left: auto;
+  margin-right: auto;
+  width: 100%;
 }
 </style>
